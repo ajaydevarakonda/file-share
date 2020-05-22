@@ -22,3 +22,7 @@ input {
     position: absolute;
     bottom: 0px;
 }
+
+#sent-file {
+    display: none;
+}
