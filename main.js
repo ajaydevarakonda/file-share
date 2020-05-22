@@ -6,10 +6,10 @@ function print(str) {
 
 async function runHost(connection) {
   print("Initializing...");
-  const dataChannel = connection.createDataChannel(null);
-  dataChannel.binaryType = 'arraybuffer';
+  const chatChannel = connection.createDataChannel("chat-channel");
+  chatChannel.binaryType = 'arraybuffer';
 
-  dataChannel.onopen = (event) => onConnectionEstablished(dataChannel);
+  chatChannel.onopen = (event) => onConnectionEstablished(chatChannel);
   connection.setLocalDescription(await connection.createOffer());
   connection.oniceconnectionstatechange = () =>
     print("Connection status: " + connection.iceConnectionState);
@@ -54,12 +54,12 @@ async function runGuest(connection, offerString) {
   };
 }
 
-function onConnectionEstablished(dataChannel) {
-  dataChannel.onmessage = (event) => print("Received : " + event.data);
+function onConnectionEstablished(chatChannel) {
+  chatChannel.onmessage = (event) => print("Received : " + event.data);
   const input = document.getElementById("input");
   input.onkeypress = (event) => {
     if (event.key !== "Enter") return;
-    dataChannel.send(input.value);
+    chatChannel.send(input.value);
     print("Sent: " + input.value);
     input.value = "";
   };
