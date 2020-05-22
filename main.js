@@ -6,10 +6,16 @@ function print(str) {
 
 async function runHost(connection) {
   print("Initializing...");
+  
+  // ---- chat channel ----
   const chatChannel = connection.createDataChannel("chat-channel");
-  chatChannel.binaryType = 'arraybuffer';
+  chatChannel.onopen = (event) => onConnectionEstablished_chatChannel(chatChannel);
 
-  chatChannel.onopen = (event) => onConnectionEstablished(chatChannel);
+  // ---- file send channel ----
+  const fileSendChannel = connection.createDataChannel("file-send-channel");
+  fileSendChannel.binaryType = 'arraybuffer';
+  fileSendChannel.onopen = (event) => onConnectionEstablished_fileSendChannel(fileSendChannel);
+
   connection.setLocalDescription(await connection.createOffer());
   connection.oniceconnectionstatechange = () =>
     print("Connection status: " + connection.iceConnectionState);
@@ -49,12 +55,17 @@ async function runGuest(connection, offerString) {
     print("");
     print(JSON.stringify(connection.localDescription));
   };
+
   connection.ondatachannel = (event) => {
-    event.channel.onopen = onConnectionEstablished(event.channel);
+    if (event.channel.label === "chat-channel") {
+      event.channel.onopen = onConnectionEstablished_chatChannel(event.channel);
+    } else if (event.channel.label === "file-send-channel") {
+      event.channel.onopen = onConnectionEstablished_fileSendChannel(event.channel);
+    }
   };
 }
 
-function onConnectionEstablished(chatChannel) {
+function onConnectionEstablished_chatChannel(chatChannel) {
   chatChannel.onmessage = (event) => print("Received : " + event.data);
   const input = document.getElementById("input");
   input.onkeypress = (event) => {
@@ -63,6 +74,17 @@ function onConnectionEstablished(chatChannel) {
     print("Sent: " + input.value);
     input.value = "";
   };
+}
+
+function onConnectionEstablished_fileSendChannel(fileSendChannel) {
+  fileSendChannel.onmessage = (event) => print("File Received : " + event.data);
+  // const input = document.getElementById("input");
+  // input.onkeypress = (event) => {
+  //   if (event.key !== "Enter") return;
+  //   fileSendChannel.send(input.value);
+  //   print("Sent: " + input.value);
+  //   input.value = "";
+  // };
 }
 
 window.onhashchange = () => location.reload();
