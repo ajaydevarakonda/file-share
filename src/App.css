@@ -1,38 +1,68 @@
 .App {
   text-align: center;
+  min-width: 80vw;
+  max-width: 80vw;
+  min-height: 90vh;
+  max-height: 90vh;
+  margin: 5vh 10vw;
+  position: relative;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+nav.navbar.navbar-light {
+  background-color: #ededed !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.MessageArea {
+  background-color: #e4dcd4;
+  background-repeat: repeat;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.MessageInput {
+  background-color: #f0f0f0;
+  padding: 15px 5px 0px 5px;
+}
+
+.MessageBox {
+  height: 70vh;
+}
+
+.Message {
+  padding: 10px 10px;
+}
+
+.thanks {
+  font-size: 13px;
+  padding: 5px;
+  background-color: #FEF3C5;
+  width: fit-content;
+  margin: 0px auto;
+  border-radius: 6px;
+}
+
+.MessageBody {
+  background-color: #DCF8C6;
+  display: inline-block;
+  padding: 10px 10px 5px 10px;
+  font-size: 14.5px;
+  border-radius: 6px;
+  box-shadow: 0px 1px #ccc;
+}
+
+.fa-paperclip {
+  color: #919191 !important;
+}
+
+[dataLetters]:before {
+  content: attr(dataLetters);
+  display: inline-block;
+  font-size: 1em;
+  width: 2.5em;
+  height: 2.5em;
+  line-height: 2.5em;
+  text-align: center;
+  border-radius: 50%;
+  background: plum;
+  vertical-align: middle;
+  margin-right: 1em;
   color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
