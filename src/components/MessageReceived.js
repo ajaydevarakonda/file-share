@@ -3,7 +3,9 @@ import React from "react";
 function MessageReceived() {
   return (
     <div className="MessageReceived">
-        Not my message!!
+      <div className="text-left MessageSent">
+        <div className="MessageBody">Not my message!!</div>
+      </div>
     </div>
   );
 }
