@@ -1,10 +1,10 @@
 import React from "react";
 
-function MessageSent() {
+function MessageSent(props) {
   return (
     <div className="text-right MessageSent">
       <div className="MessageBody">
-        This is my message 
+        {props.message} 
       </div>
     </div>
   );

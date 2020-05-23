@@ -1,10 +1,10 @@
 import React from "react";
 
-function MessageReceived() {
+function MessageReceived(props) {
   return (
-    <div className="MessageReceived">
-      <div className="text-left MessageSent">
-        <div className="MessageBody">Not my message!!</div>
+    <div className="text-left MessageReceived">
+      <div className="MessageBody">
+        {props.message}
       </div>
     </div>
   );
