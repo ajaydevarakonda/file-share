@@ -48,13 +48,13 @@ class Host extends Client{
   }
 
   add_setdescription_eventhandler() {
-    const input = document.getElementById("input");
-    input.onkeypress = (event) => {
-      if (event.key !== "Enter") return;
-      this.connection.setRemoteDescription(JSON.parse(input.value));
-      input.value = "";
-      input.onkeypress = undefined;
-    };
+    // const input = document.getElementById("input");
+    // input.onkeypress = (event) => {
+    //   if (event.key !== "Enter") return;
+    //   this.connection.setRemoteDescription(JSON.parse(input.value));
+    //   input.value = "";
+    //   input.onkeypress = undefined;
+    // };
   }
 }
 

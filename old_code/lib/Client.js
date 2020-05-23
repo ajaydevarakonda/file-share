@@ -1,3 +1,5 @@
+import { print } from "./utils";
+
 class Client {
   constructor() {
     this.connection = new RTCPeerConnection({
@@ -84,7 +86,7 @@ class Client {
       downloadAnchor.textContent = `Click to download '${this.filename_expected}' (${this.filesize_expected} bytes)`;
       downloadAnchor.style.display = "block";
 
-      $("#fileDownloadModal").modal("show");
+      // $("#fileDownloadModal").modal("show");
 
       // for future files
       this.first_filechunk = true;
@@ -122,7 +124,7 @@ class Client {
 
     const send_progress = document.getElementById("send-progress");
 
-    $("#myModal").modal("show");
+    // $("#myModal").modal("show");
     document.getElementById("myFilename").textContent = filename;
     document.getElementById("send-btn").addEventListener(
       "click",
@@ -170,3 +172,5 @@ class Client {
     );
   }
 }
+
+export default Client;
