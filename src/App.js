@@ -19,8 +19,9 @@ class App extends React.Component {
     this.isDescriptionSet = false;
 
     this.state = {
-      messages: [],
+      messages: [], // { type: "system|received|sent", message: "" }
       fileSendProgress: 0,
+      fileReceiveProgress: 0,
     };
 
     this.handleMessageSumbit = this.handleMessageSumbit.bind(this);
@@ -58,6 +59,28 @@ class App extends React.Component {
         fileSendProgress: progress,
       });
     });
+
+    this.client.on_file((filename, filesize, fileByteArray) => {
+      const received = new Blob(fileByteArray);
+
+      const href = URL.createObjectURL(received);
+      const filesizeMB = filesize / 1000;
+
+      const msg = {
+        type: "received",
+        message: (
+          <a href={href} download={filename}>
+            {filename}({filesizeMB} MB)
+          </a>
+        ),
+      };
+
+      console.log(this.state.messages);
+
+      return this.setState({
+        messages: this.state.messages.concat(msg),
+      });
+    });
   }
 
   handleMessageSumbit(msg) {
@@ -92,6 +115,14 @@ class App extends React.Component {
           </div>
           {this.state.fileSendProgress ? (
             <ProgressBar now={this.state.fileSendProgress} />
+          ) : (
+            ""
+          )}
+          {this.state.fileReceiveProgress ? (
+            <ProgressBar
+              variant="warning"
+              now={this.state.fileReceiveProgress}
+            />
           ) : (
             ""
           )}

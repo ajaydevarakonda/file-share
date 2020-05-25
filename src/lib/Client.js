@@ -20,6 +20,7 @@ class Client {
     this.message_listeners = [];
     this.file_listeners = [];
     this.filesend_progress_listeners = [];
+    this.filereceive_progress_listeners = [];
 
     // ---- text message ----
     this.onconnected_chat_channel = this.onconnected_chat_channel.bind(this);
@@ -41,6 +42,7 @@ class Client {
     this._on_file = this._on_file.bind(this);
     this.send_file = this.send_file.bind(this);
     this.on_filesend_progress = this.on_filesend_progress.bind(this);
+    this.on_filereceive_progress = this.on_filereceive_progress.bind(this);
   }
 
   // ---- text message ----
@@ -118,8 +120,6 @@ class Client {
    * @param {*} event
    */
   _on_file(event) {
-    console.log(`Received Message ${event.data.byteLength}`);
-
     // the first part of the message is the filename;;;filesizeInBytes;;;<file>
     if (this.first_filechunk) {
       [this.filename_expected, this.filesize_expected] = event.data.split(
@@ -134,18 +134,14 @@ class Client {
     this.receivebuffer.push(event.data);
     this.receivedsize += event.data.byteLength;
 
-    console.log(
-      `expected: ${this.receivedsize}, recieved: ${this.filesize_expected}`
+    this.filereceive_progress_listeners.forEach((l) =>
+      l((this.receivedsize / this.filesize_expected) * 100)
     );
 
     if (this.receivedsize === this.filesize_expected) {
-      const received = new Blob(this.receivebuffer);
+      this.file_listeners.forEach(l => l(this.filename_expected, this.filesize_expected, this.receivebuffer));
+
       this.receivebuffer = [];
-
-      console.log("we've downloaded the file!");
-      // display the file for download from here.
-
-      // $("#fileDownloadModal").modal("show");
 
       // for future files
       this.first_filechunk = true;
@@ -171,6 +167,15 @@ class Client {
    */
   on_filesend_progress(event_listener) {
     this.filesend_progress_listeners.push(event_listener);
+  }
+
+  /**
+   * Called when a part of file is received.
+   *
+   * @param {Function} event_listener
+   */
+  on_filereceive_progress(event_listener) {
+    this.filereceive_progress_listeners.push(event_listener);
   }
 
   send_file(file) {
