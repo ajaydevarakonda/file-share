@@ -1,4 +1,5 @@
 import React from "react";
+import ProgressBar from "react-bootstrap/ProgressBar";
 
 import NavigationBar from "./components/NavigationBar";
 import MessageInput from "./components/MessageInput";
@@ -19,9 +20,11 @@ class App extends React.Component {
 
     this.state = {
       messages: [],
+      fileSendProgress: 0,
     };
 
     this.handleMessageSumbit = this.handleMessageSumbit.bind(this);
+    this.onFileSelected = this.onFileSelected.bind(this);
   }
 
   componentDidMount() {
@@ -36,8 +39,23 @@ class App extends React.Component {
     }
 
     this.client.on_message((message) => {
-      self.setState({
+      return self.setState({
         messages: self.state.messages.concat(message),
+      });
+    });
+
+    this.client.on_filesend_progress((progress) => {
+      if (progress === 100) {
+        // showing progress bar post 5 seconds is awkward.
+        window.setTimeout(() => {
+          return this.setState({
+            fileSendProgress: 0,
+          });
+        }, 5000);
+      }
+
+      return self.setState({
+        fileSendProgress: progress,
       });
     });
   }
@@ -51,10 +69,20 @@ class App extends React.Component {
     }
   }
 
+  onFileSelected(e) {
+    if (!e.target.files.length) {
+      throw new Error("No file selected!");
+    } else if (e.target.files[0].size === 0) {
+      throw new Error("Emtpy file!");
+    }
+
+    this.client.send_file(e.target.files[0]);
+  }
+
   render() {
     return (
       <div className="App">
-        <NavigationBar />
+        <NavigationBar onFileSelected={this.onFileSelected} />
         <div className="MessageArea">
           <div className="container MessageBox">
             <br />
@@ -62,6 +90,11 @@ class App extends React.Component {
               <Message key={indx} type={msg.type} message={msg.message} />
             ))}
           </div>
+          {this.state.fileSendProgress ? (
+            <ProgressBar now={this.state.fileSendProgress} />
+          ) : (
+            ""
+          )}
           <MessageInput onSubmit={this.handleMessageSumbit} />
         </div>
       </div>

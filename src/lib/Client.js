@@ -19,6 +19,7 @@ class Client {
     // ---- external event listeners ----
     this.message_listeners = [];
     this.file_listeners = [];
+    this.filesend_progress_listeners = [];
 
     // ---- text message ----
     this.onconnected_chat_channel = this.onconnected_chat_channel.bind(this);
@@ -39,6 +40,7 @@ class Client {
     this.on_file = this.on_file.bind(this);
     this._on_file = this._on_file.bind(this);
     this.send_file = this.send_file.bind(this);
+    this.on_filesend_progress = this.on_filesend_progress.bind(this);
   }
 
   // ---- text message ----
@@ -142,11 +144,6 @@ class Client {
 
       console.log("we've downloaded the file!");
       // display the file for download from here.
-      //   const downloadAnchor = document.getElementById("download-anchor");
-      //   downloadAnchor.href = URL.createObjectURL(received);
-      //   downloadAnchor.download = this.filename_expected;
-      //   downloadAnchor.textContent = `Click to download '${this.filename_expected}' (${this.filesize_expected} bytes)`;
-      //   downloadAnchor.style.display = "block";
 
       // $("#fileDownloadModal").modal("show");
 
@@ -160,88 +157,63 @@ class Client {
 
   /**
    * Add event listener for new file.
-   * @param {} event_listener
+   *
+   * @param {Function} event_listener
    */
   on_file(event_listener) {
     this.file_listeners.push(event_listener);
   }
 
   /**
-   * Static
+   * Called when a part of file is sent.
+   *
+   * @param {Function} event_listener
    */
-  getfile(e) {
-    const { files } = e.target;
-
-    if (!files.length) {
-      throw new Error("No file selected!");
-    }
-
-    const [file] = files;
-
-    if (file.size === 0) {
-      throw new Error("Emtpy file!");
-    }
-
-    return file;
+  on_filesend_progress(event_listener) {
+    this.filesend_progress_listeners.push(event_listener);
   }
 
-  send_file(e) {
-    const self = this;
-    const file = this.getfile(e);
-
+  send_file(file) {
     const { name: filename, size: filesize } = file;
     var file_reader = null;
 
-    // file send button event listeners here
+    // first send filename and file size.
+    this.filesend_channel.send(`${filename};;;${filesize};;;`);
 
-    //     const send_progress = document.getElementById("send-progress");
+    const chunkSize = 16384;
+    file_reader = new FileReader();
+    let offset = 0;
 
-    //     // $("#myModal").modal("show");
-    //     document.getElementById("myFilename").textContent = filename;
-    //     document.getElementById("send-btn").addEventListener(
-    //       "click",
-    //       function () {
-    //         // first send filename and file size.
-    //         self.filesend_channel.send(`${filename};;;${filesize};;;`);
+    file_reader.addEventListener("error", (error) =>
+      console.error("Error reading file:", error)
+    );
 
-    //         const chunkSize = 16384;
-    //         file_reader = new FileReader();
+    file_reader.addEventListener("abort", (event) =>
+      console.log("File reading aborted:", event)
+    );
 
-    //         let offset = 0;
-    //         file_reader.addEventListener("error", (error) =>
-    //           console.error("Error reading file:", error)
-    //         );
-    //         file_reader.addEventListener("abort", (event) =>
-    //           console.log("File reading aborted:", event)
-    //         );
-    //         file_reader.addEventListener("load", (e) => {
-    //           console.log("FileRead.onload ", e);
-    //           self.filesend_channel.send(e.target.result);
-    //           offset += e.target.result.byteLength;
-    //           console.log((offset / filesize) * 100);
-    //           send_progress.style.width = `${(offset / filesize) * 100}%`;
-    //           console.log(send_progress.style.width);
+    file_reader.addEventListener("load", (e) => {
+      this.filesend_channel.send(e.target.result);
+      offset += e.target.result.byteLength;
 
-    //           if (offset < file.size) {
-    //             readSlice(offset);
-    //           } else {
-    //             // ---- file sent ----
-    //             document.getElementById("sending-file").style.display = "none";
-    //             document.getElementById("sent-file").style.display = "block";
-    //           }
-    //         });
+      const progress = (offset / filesize) * 100;
+      this.filesend_progress_listeners.forEach((l) => l(progress));
 
-    //         const readSlice = (o) => {
-    //           console.log("readSlice ", o);
-    //           const slice = file.slice(offset, o + chunkSize);
-    //           file_reader.readAsArrayBuffer(slice);
-    //         };
-    //         readSlice(0);
-    //       },
-    //       {
-    //         once: true,
-    //       }
-    //     );
+      if (offset < file.size) {
+        readSlice(offset);
+      } else {
+        this.message_listeners.forEach((l) =>
+          l({ type: "system", message: `Sent "${filename}".` })
+        );
+      }
+    });
+
+    const readSlice = (o) => {
+      const slice = file.slice(offset, o + chunkSize);
+      file_reader.readAsArrayBuffer(slice);
+    };
+
+    readSlice(0);
   }
 }
 
