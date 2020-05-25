@@ -1,0 +1,7 @@
+.CopyableDescription {
+    font-size: inherit;
+}
+
+button.CopyableButton.btn.btn-link {
+    font-size: inherit !important;
+}

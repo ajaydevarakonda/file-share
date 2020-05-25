@@ -1,7 +1,10 @@
 import { print } from "./utils";
 import Client from "./Client";
+import React from "react";
 
-class Host extends Client{
+import CopyableDescription from "../components/CopyableDescription";
+
+class Host extends Client {
   constructor() {
     super();
 
@@ -9,12 +12,13 @@ class Host extends Client{
 
     this.init_channels();
     this.add_connection_eventhandlers();
-    this.add_setdescription_eventhandler();
 
     // ---- bindings ----
     this.init_channels = this.init_channels.bind(this);
-    this.add_connection_eventhandlers = this.add_connection_eventhandlers.bind(this);
-    this.add_setdescription_eventhandler = this.add_setdescription_eventhandler.bind(this);
+    this.add_connection_eventhandlers = this.add_connection_eventhandlers.bind(
+      this
+    );
+    this.set_description = this.set_description.bind(this);
   }
 
   init_channels() {
@@ -23,38 +27,48 @@ class Host extends Client{
     this.chat_channel.onopen = (event) => this.onconnected_chat_channel();
 
     // file send channel
-    this.filesend_channel = this.connection.createDataChannel("file-send-channel");
+    this.filesend_channel = this.connection.createDataChannel(
+      "file-send-channel"
+    );
     this.filesend_channel.binaryType = "arraybuffer";
     this.filesend_channel.onopen = (event) =>
-        this.onconnected_filesend_channel(this.filesend_channel);
+      this.onconnected_filesend_channel(this.filesend_channel);
   }
 
   async add_connection_eventhandlers() {
     this.connection.setLocalDescription(await this.connection.createOffer());
     this.connection.oniceconnectionstatechange = () =>
-      print("Connection status: " + this.connection.iceConnectionState);
-    this.connection.onicegatheringstatechange = () => {
-      if (this.connection.iceGatheringState !== "complete") return;
-      print("To make a connection:");
-      print("1. Send the following URL to the other person.");
-      print("2. Type the result in the bottom text field.");
-      print("");
-      print(
-        window.location.href +
-          "#" +
-          encodeURIComponent(JSON.stringify(this.connection.localDescription))
+      this.send_system_message(
+        "Connection status: " + this.connection.iceConnectionState
       );
-    };    
+    this.connection.onicegatheringstatechange = () => {
+      if (this.connection.iceGatheringState !== "complete") {
+        return;
+      }
+
+      const shareLink =
+        window.location.href +
+        "#" +
+        encodeURIComponent(JSON.stringify(this.connection.localDescription));
+
+      const systemMessage = (
+        <p>
+          To make a connection:
+          <br />
+          1. Send the following URL to the other person and 2. Type the result
+          in the bottom text field.
+          <br />
+          <br />
+          <CopyableDescription value={shareLink} />
+        </p>
+      );
+
+      this.send_system_message(systemMessage);
+    };
   }
 
-  add_setdescription_eventhandler() {
-    // const input = document.getElementById("input");
-    // input.onkeypress = (event) => {
-    //   if (event.key !== "Enter") return;
-    //   this.connection.setRemoteDescription(JSON.parse(input.value));
-    //   input.value = "";
-    //   input.onkeypress = undefined;
-    // };
+  set_description(desc) {
+    this.connection.setRemoteDescription(JSON.parse(desc));
   }
 }
 

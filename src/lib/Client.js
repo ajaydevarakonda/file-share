@@ -23,6 +23,17 @@ class Client {
     this.onconnected_filesend_channel = this.onconnected_filesend_channel.bind(
       this
     );
+
+    // all functions in below listeners will be notified once a message, file become \
+    // available for end user consumpiton.
+    this.message_listeners = [];
+    this.file_listeners = [];
+
+    // functions to add listeners
+    this.on_message = this.on_message.bind(this);
+    this.on_file = this.on_file.bind(this);
+
+    this.send_system_message = this.send_system_message.bind(this);
   }
 
   onconnected_chat_channel(event) {
@@ -181,6 +192,20 @@ class Client {
     //         once: true,
     //       }
     //     );
+  }
+
+  on_message(event_listener) {
+    this.message_listeners.push(event_listener);
+  }
+
+  on_file(event_listener) {
+    this.file_listeners.push(event_listener);
+  }
+
+  send_system_message(message) {
+    this.message_listeners.forEach((listener) =>
+      listener({ type: "system", message })
+    );
   }
 }
 

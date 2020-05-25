@@ -1,4 +1,4 @@
-import { print } from "./utils";
+import React from "react";
 import Client from "./Client";
 
 class Guest extends Client {
@@ -26,14 +26,24 @@ class Guest extends Client {
 
   async add_connection_eventhandlers() {
     this.connection.oniceconnectionstatechange = () =>
-      print("Connection status: " + this.connection.iceConnectionState);
-    this.connection.onicegatheringstatechange = () => {
-      if (this.connection.iceGatheringState !== "complete") return;
-      print(
-        "To make a connection, send the following string to the other person."
+      this.send_system_message(
+        "Connection status: " + this.connection.iceConnectionState
       );
-      print("");
-      print(JSON.stringify(this.connection.localDescription));
+    this.connection.onicegatheringstatechange = () => {
+      if (this.connection.iceGatheringState !== "complete") {
+        return;
+      }
+
+      const desc = JSON.stringify(this.connection.localDescription);
+      this.send_system_message(
+        <p>
+          To make a connection, send the following string to the other person.
+          <br />
+          Just right click and copy
+          <br />
+          <a href={desc}>{desc.substring(0, 40)}</a>
+        </p>
+      );
     };
 
     this.connection.ondatachannel = (e) => this.ondatachannel(e);
@@ -48,7 +58,6 @@ class Guest extends Client {
       event.channel.onopen = this.onconnected_filesend_channel;
     }
   }
-
 }
 
 export default Guest;
