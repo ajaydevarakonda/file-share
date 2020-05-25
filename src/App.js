@@ -13,10 +13,12 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
+    this.client = null;
+    this.clientType = null;
+    this.isDescriptionSet = false;
+
     this.state = {
       messages: [],
-      client: null,
-      isDescriptionSet: false,
     };
 
     this.handleMessageSumbit = this.handleMessageSumbit.bind(this);
@@ -25,9 +27,13 @@ class App extends React.Component {
   componentDidMount() {
     const self = this;
 
-    this.client = window.location.hash
-      ? new Guest(window.location.hash.substring(1))
-      : new Host();
+    if (window.location.hash) {
+      this.client = new Guest(window.location.hash.substring(1));
+      this.clientType = "Guest";
+    } else {
+      this.client = new Host();
+      this.clientType = "Host";
+    }
 
     this.client.on_message((message) => {
       self.setState({
@@ -37,10 +43,11 @@ class App extends React.Component {
   }
 
   handleMessageSumbit(msg) {
-    if (this.state.isDescriptionSet) {
-      // send it to the other user.
-    } else {
+    if (this.clientType === "Host" && !this.isDescriptionSet) {
       this.client.set_description(msg);
+      this.isDescriptionSet = true;
+    } else {
+      this.client.send_message(msg);
     }
   }
 
@@ -55,7 +62,7 @@ class App extends React.Component {
               <Message key={indx} type={msg.type} message={msg.message} />
             ))}
           </div>
-          <MessageInput onSubmit={this.handleMessageSumbit}/>
+          <MessageInput onSubmit={this.handleMessageSumbit} />
         </div>
       </div>
     );

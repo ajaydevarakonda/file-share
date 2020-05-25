@@ -52,7 +52,7 @@ class Host extends Client {
         encodeURIComponent(JSON.stringify(this.connection.localDescription));
 
       const systemMessage = (
-        <p>
+        <div>
           To make a connection:
           <br />
           1. Send the following URL to the other person and 2. Type the result
@@ -60,7 +60,7 @@ class Host extends Client {
           <br />
           <br />
           <CopyableDescription value={shareLink} />
-        </p>
+        </div>
       );
 
       this.send_system_message(systemMessage);

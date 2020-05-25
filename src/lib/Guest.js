@@ -1,5 +1,6 @@
 import React from "react";
 import Client from "./Client";
+import CopyableDescription from "../components/CopyableDescription";
 
 class Guest extends Client {
   constructor(offer_string) {
@@ -36,13 +37,13 @@ class Guest extends Client {
 
       const desc = JSON.stringify(this.connection.localDescription);
       this.send_system_message(
-        <p>
+        <div>
           To make a connection, send the following string to the other person.
           <br />
           Just right click and copy
           <br />
           <CopyableDescription value={desc} />
-        </p>
+        </div>
       );
     };
 

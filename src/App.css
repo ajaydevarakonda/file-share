@@ -1,10 +1,8 @@
 .App {
   text-align: center;
-  min-width: 80vw;
-  max-width: 80vw;
-  min-height: 90vh;
-  max-height: 90vh;
-  margin: 5vh 10vw;
+  width: 50vw;
+  height: 90vh;
+  margin: 5vh 25vw;
   position: relative;
 }
 

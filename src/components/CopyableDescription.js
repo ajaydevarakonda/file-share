@@ -24,7 +24,7 @@ class CopyableDescription extends React.Component {
   render() {
     return (
       <p className="CopyableDescription">
-        <input type="text" ref={this.textInput} value={this.props.value} />
+        <input type="text" ref={this.textInput} value={this.props.value} readOnly />
         <Button className="CopyableBtn" variant="link" onClick={this.copyText}>
           Copy
         </Button>

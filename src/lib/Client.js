@@ -8,72 +8,114 @@ class Client {
 
     this.chat_channel = null;
     this.filesend_channel = null;
-    this.first_filechunk = true;
 
+    // ---- file send / received ----
+    this.first_filechunk = true;
     this.receivebuffer = [];
     this.receivedsize = 0;
     this.filename_expected = "";
     this.filesize_expected = 0;
 
-    // ---- bindings ----
-    this.onrecievefile = this.onrecievefile.bind(this);
-    this.sendfile = this.sendfile.bind(this);
-
-    this.onconnected_chat_channel = this.onconnected_chat_channel.bind(this);
-    this.onconnected_filesend_channel = this.onconnected_filesend_channel.bind(
-      this
-    );
-
-    // all functions in below listeners will be notified once a message, file become \
-    // available for end user consumpiton.
+    // ---- external event listeners ----
     this.message_listeners = [];
     this.file_listeners = [];
 
-    // functions to add listeners
+    // ---- text message ----
+    this.onconnected_chat_channel = this.onconnected_chat_channel.bind(this);
+    this.warn_if_chatchannel_not_inited = this.warn_if_chatchannel_not_inited.bind(
+      this
+    );
     this.on_message = this.on_message.bind(this);
-    this.on_file = this.on_file.bind(this);
-
+    this.send_message = this.send_message.bind(this);
     this.send_system_message = this.send_system_message.bind(this);
+
+    // ---- file ----
+    this.onconnected_filesend_channel = this.onconnected_filesend_channel.bind(
+      this
+    );
+    this.warn_if_filechannel_not_inited = this.warn_if_filechannel_not_inited.bind(
+      this
+    );
+    this.on_file = this.on_file.bind(this);
+    this._on_file = this._on_file.bind(this);
+    this.send_file = this.send_file.bind(this);
   }
 
+  // ---- text message ----
+
   onconnected_chat_channel(event) {
+    this.warn_if_chatchannel_not_inited();
+
+    this.chat_channel.onmessage = (e) => {
+      this.message_listeners.forEach((l) =>
+        l({ type: "received", message: e.data })
+      );
+    };
+  }
+
+  warn_if_chatchannel_not_inited() {
     if (!this.chat_channel) {
       console.warn(
         "Client::onconnected_chat_channel() called without initializing this.chat_channel!"
       );
       return;
     }
-
-    this.chat_channel.onmessage = (event) => print("Received : " + event.data);
-
-    // add message send event listeners here.
-
-    // const input = document.getElementById("input");
-    // input.onkeypress = (event) => {
-    //   if (event.key !== "Enter") return;
-    //   this.chat_channel.send(input.value);
-    //   print("Sent: " + input.value);
-    //   input.value = "";
-    // };
   }
 
+  /**
+   * Add event listener for text message.
+   *
+   * @param {*} event_listener
+   */
+  on_message(event_listener) {
+    this.message_listeners.push(event_listener);
+  }
+
+  /**
+   *
+   */
+  send_message(msg) {
+    this.chat_channel.send(msg);
+    this.message_listeners.forEach((l) => l({ type: "sent", message: msg }));
+  }
+
+  /**
+   * Send system message to all event listeners.
+   *
+   * @param {String} message
+   */
+  send_system_message(message) {
+    this.message_listeners.forEach((listener) =>
+      listener({ type: "system", message })
+    );
+  }
+
+  // ---- file ----
+
   onconnected_filesend_channel(event) {
+    this.warn_if_filechannel_not_inited();
+
+    this.filesend_channel.onmessage = this._on_file;
+  }
+
+  warn_if_filechannel_not_inited() {
     if (!this.filesend_channel) {
       console.warn(
         "Client::onconnected_filesend_channel() called without initializing this.filesend_channel!"
       );
       return;
     }
-
-    this.filesend_channel.onmessage = this.onrecievefile;
-
-    // add file send event listeners here.
-
-    // const input = document.getElementById("fileInput");
-    // input.onchange = this.sendfile;
   }
 
-  onrecievefile(event) {
+  /**
+   * Private
+   * This will be called when file send channel receives file data from the other user.
+   * Not supposed to be used directly by the user, should be used as event listener on
+   *
+   *
+   * @param {*} event
+   */
+  _on_file(event) {
     console.log(`Received Message ${event.data.byteLength}`);
 
     // the first part of the message is the filename;;;filesizeInBytes;;;<file>
@@ -117,6 +159,14 @@ class Client {
   }
 
   /**
+   * Add event listener for new file.
+   * @param {} event_listener
+   */
+  on_file(event_listener) {
+    this.file_listeners.push(event_listener);
+  }
+
+  /**
    * Static
    */
   getfile(e) {
@@ -135,7 +185,7 @@ class Client {
     return file;
   }
 
-  sendfile(e) {
+  send_file(e) {
     const self = this;
     const file = this.getfile(e);
 
@@ -192,20 +242,6 @@ class Client {
     //         once: true,
     //       }
     //     );
-  }
-
-  on_message(event_listener) {
-    this.message_listeners.push(event_listener);
-  }
-
-  on_file(event_listener) {
-    this.file_listeners.push(event_listener);
-  }
-
-  send_system_message(message) {
-    this.message_listeners.forEach((listener) =>
-      listener({ type: "system", message })
-    );
   }
 }
 
