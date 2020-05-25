@@ -41,7 +41,7 @@ class Guest extends Client {
           <br />
           Just right click and copy
           <br />
-          <a href={desc}>{desc.substring(0, 40)}</a>
+          <CopyableDescription value={desc} />
         </p>
       );
     };
