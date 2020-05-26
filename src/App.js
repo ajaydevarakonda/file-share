@@ -1,11 +1,12 @@
 import React from "react";
-import ProgressBar from "react-bootstrap/ProgressBar";
+
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 import NavigationBar from "./components/NavigationBar";
-import MessageInput from "./components/MessageInput";
+import MessageArea from "./components/MessageArea";
 import Host from "./lib/Host";
 import Guest from "./lib/Guest";
-import Message from "./components/Message";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -26,11 +27,11 @@ class App extends React.Component {
 
     this.handleMessageSumbit = this.handleMessageSumbit.bind(this);
     this.onFileSelected = this.onFileSelected.bind(this);
+    this.initClientListeners = this.initClientListeners.bind(this);
+    this.requestFileSpace = this.requestFileSpace.bind(this);
   }
 
   componentDidMount() {
-    const self = this;
-
     if (window.location.hash) {
       this.client = new Guest(window.location.hash.substring(1));
       this.clientType = "Guest";
@@ -38,6 +39,28 @@ class App extends React.Component {
       this.client = new Host();
       this.clientType = "Host";
     }
+
+    this.requestFileSpace();
+    this.initClientListeners();
+  }
+
+  /**
+   * Filespace to store huge files.
+   */
+  requestFileSpace() {
+    const spaceInMb = (window.requestFileSystem =
+      window.requestFileSystem || window.webkitRequestFileSystem);
+
+    window.requestFileSystem(
+      window.TEMPORARY,
+      spaceInMb * 1024 * 1024 /*5MB*/,
+      console.log,
+      console.error
+    );
+  }
+
+  initClientListeners() {
+    const self = this;
 
     this.client.on_message((message) => {
       return self.setState({
@@ -75,8 +98,6 @@ class App extends React.Component {
         ),
       };
 
-      console.log(this.state.messages);
-
       return this.setState({
         messages: this.state.messages.concat(msg),
       });
@@ -106,28 +127,17 @@ class App extends React.Component {
     return (
       <div className="App">
         <NavigationBar onFileSelected={this.onFileSelected} />
-        <div className="MessageArea">
-          <div className="container MessageBox">
-            <br />
-            {this.state.messages.map((msg, indx) => (
-              <Message key={indx} type={msg.type} message={msg.message} />
-            ))}
-          </div>
-          {this.state.fileSendProgress ? (
-            <ProgressBar now={this.state.fileSendProgress} />
-          ) : (
-            ""
-          )}
-          {this.state.fileReceiveProgress ? (
-            <ProgressBar
-              variant="warning"
-              now={this.state.fileReceiveProgress}
+        <Row>
+          <Col md={7}></Col>
+          <Col md={5}>
+            <MessageArea
+              messages={this.state.messages}
+              fileSendProgress={this.state.fileSendProgress}
+              fileReceiveProgress={this.state.fileReceiveProgress}
+              onMessageSubmit={this.handleMessageSumbit}
             />
-          ) : (
-            ""
-          )}
-          <MessageInput onSubmit={this.handleMessageSumbit} />
-        </div>
+          </Col>
+        </Row>
       </div>
     );
   }

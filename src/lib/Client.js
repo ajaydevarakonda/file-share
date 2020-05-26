@@ -76,7 +76,7 @@ class Client {
   }
 
   /**
-   *
+   * Send message to user on the other end.
    */
   send_message(msg) {
     this.chat_channel.send(msg);
