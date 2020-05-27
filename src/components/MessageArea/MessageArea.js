@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import Container from "react-bootstrap/Container";
 
 import MessageInput from "./MessageInput";
 import Message from "./Message";

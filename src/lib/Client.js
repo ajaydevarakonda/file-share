@@ -1,5 +1,3 @@
-import { print } from "./utils";
-
 class Client {
   constructor() {
     this.connection = new RTCPeerConnection({
@@ -43,6 +41,7 @@ class Client {
     this.send_file = this.send_file.bind(this);
     this.on_filesend_progress = this.on_filesend_progress.bind(this);
     this.on_filereceive_progress = this.on_filereceive_progress.bind(this);
+    this.request_file_space = this.request_file_space.bind(this);
   }
 
   // ---- text message ----
@@ -219,6 +218,23 @@ class Client {
     };
 
     readSlice(0);
+  }
+
+    /**
+   * Filespace to store huge files.
+   */
+  async request_file_space(fileSpaceInMb=1) {
+    return new Promise((resolve, reject) => {
+      window.requestFileSystem =
+        window.requestFileSystem || window.webkitRequestFileSystem;
+
+      window.requestFileSystem(
+        window.TEMPORARY,
+        fileSpaceInMb * 1024 * 1024,
+        resolve,
+        reject
+      );
+    });
   }
 }
 

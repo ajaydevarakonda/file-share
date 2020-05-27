@@ -31,10 +31,9 @@ class App extends React.Component {
     this.handleMessageSumbit = this.handleMessageSumbit.bind(this);
     this.onFileSelected = this.onFileSelected.bind(this);
     this.initClientListeners = this.initClientListeners.bind(this);
-    this.requestFileSpace = this.requestFileSpace.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     if (window.location.hash) {
       this.client = new Guest(window.location.hash.substring(1));
       this.clientType = "Guest";
@@ -43,23 +42,7 @@ class App extends React.Component {
       this.clientType = "Host";
     }
 
-    this.requestFileSpace();
     this.initClientListeners();
-  }
-
-  /**
-   * Filespace to store huge files.
-   */
-  requestFileSpace() {
-    const spaceInMb = (window.requestFileSystem =
-      window.requestFileSystem || window.webkitRequestFileSystem);
-
-    window.requestFileSystem(
-      window.TEMPORARY,
-      spaceInMb * 1024 * 1024 /*5MB*/,
-      console.log,
-      console.error
-    );
   }
 
   initClientListeners() {
@@ -136,15 +119,15 @@ class App extends React.Component {
     return (
       <div className="App">
         <Container>
-            <NavigationBar onFileSelected={this.onFileSelected} />
+          <NavigationBar onFileSelected={this.onFileSelected} />
         </Container>
 
         <Container>
           <Row>
             <Col className="SystemMessageColumn" md={7}>
               <div className="SystemMessageArea">
-                {this.state.systemMessages.map((msg) => (
-                  <SystemMessage message={msg.message} />
+                {this.state.systemMessages.map((msg, indx) => (
+                  <SystemMessage key={indx} message={msg.message} />
                 ))}
               </div>
             </Col>
