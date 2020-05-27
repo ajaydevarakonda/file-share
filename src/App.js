@@ -10,6 +10,8 @@ import Guest from "./lib/Guest";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
+import Container from "react-bootstrap/Container";
+import SystemMessage from "./components/SystemMessage";
 
 class App extends React.Component {
   constructor(props) {
@@ -20,7 +22,8 @@ class App extends React.Component {
     this.isDescriptionSet = false;
 
     this.state = {
-      messages: [], // { type: "system|received|sent", message: "" }
+      messages: [], // { type: "received|sent", message: "" }
+      systemMessages: [], // { type: "system", message: "" }
       fileSendProgress: 0,
       fileReceiveProgress: 0,
     };
@@ -62,9 +65,15 @@ class App extends React.Component {
   initClientListeners() {
     const self = this;
 
-    this.client.on_message((message) => {
+    this.client.on_message((msg) => {
+      if (msg.type === "system") {
+        return self.setState({
+          systemMessages: self.state.systemMessages.concat(msg),
+        });
+      }
+
       return self.setState({
-        messages: self.state.messages.concat(message),
+        messages: self.state.messages.concat(msg),
       });
     });
 
@@ -90,7 +99,7 @@ class App extends React.Component {
       const filesizeMB = filesize / 1000;
 
       const msg = {
-        type: "received",
+        type: "system",
         message: (
           <a href={href} download={filename}>
             {filename}({filesizeMB} MB)
@@ -99,7 +108,7 @@ class App extends React.Component {
       };
 
       return this.setState({
-        messages: this.state.messages.concat(msg),
+        systemMessages: this.state.systemMessages.concat(msg),
       });
     });
   }
@@ -128,7 +137,14 @@ class App extends React.Component {
       <div className="App">
         <NavigationBar onFileSelected={this.onFileSelected} />
         <Row>
-          <Col md={7}></Col>
+          <Col md={7}>
+            <div className="SystemMessageArea">
+              {
+                this.state.systemMessages.map(msg => <SystemMessage message={msg.message}/>)
+              }
+            </div>
+          </Col>
+
           <Col md={5}>
             <MessageArea
               messages={this.state.messages}

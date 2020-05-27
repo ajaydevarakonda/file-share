@@ -9,26 +9,29 @@ import Message from "./Message";
 function MessageArea(props) {
   return (
     <div className="MessageArea">
-      <div className="container MessageBox">
+      <Container>
+
+      <div className="MessageBox">
         <br />
         {props.messages.map((msg, indx) => (
           <Message key={indx} type={msg.type} message={msg.message} />
-        ))}
+          ))}
       </div>
 
       {props.fileSendProgress ? (
         <ProgressBar now={props.fileSendProgress} />
-      ) : (
-        ""
-      )}
+        ) : (
+          ""
+          )}
 
       {props.fileReceiveProgress ? (
         <ProgressBar variant="warning" now={props.fileReceiveProgress} />
-      ) : (
-        ""
-      )}
+        ) : (
+          ""
+          )}
 
       <MessageInput onSubmit={props.onMessageSubmit} />
+          </Container>
     </div>
   );
 }
