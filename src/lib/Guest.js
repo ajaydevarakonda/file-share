@@ -1,6 +1,6 @@
 import React from "react";
 import Client from "./Client";
-import CopyableDescription from "../components/CopyableDescription";
+import CopyableDescription from "../components/SystemMessage/CopyableDescription";
 
 class Guest extends Client {
   constructor(offer_string) {

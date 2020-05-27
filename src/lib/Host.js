@@ -2,7 +2,7 @@ import { print } from "./utils";
 import Client from "./Client";
 import React from "react";
 
-import CopyableDescription from "../components/CopyableDescription";
+import CopyableDescription from "../components/SystemMessage/CopyableDescription";
 
 class Host extends Client {
   constructor() {
@@ -55,8 +55,9 @@ class Host extends Client {
         <div>
           To make a connection:
           <br />
-          1. Send the following URL to the other person and 2. Type the result
-          in the bottom text field.
+          1. Send the following URL to the other person and
+          <br />
+          2. Type the result in the bottom text field.
           <br />
           <br />
           <CopyableDescription value={shareLink} />

@@ -6,32 +6,31 @@ import Container from "react-bootstrap/Container";
 import MessageInput from "./MessageInput";
 import Message from "./Message";
 
+import "./MessageArea.css";
+
 function MessageArea(props) {
   return (
     <div className="MessageArea">
-      <Container>
-
       <div className="MessageBox">
         <br />
         {props.messages.map((msg, indx) => (
           <Message key={indx} type={msg.type} message={msg.message} />
-          ))}
+        ))}
       </div>
 
       {props.fileSendProgress ? (
         <ProgressBar now={props.fileSendProgress} />
-        ) : (
-          ""
-          )}
+      ) : (
+        ""
+      )}
 
       {props.fileReceiveProgress ? (
         <ProgressBar variant="warning" now={props.fileReceiveProgress} />
-        ) : (
-          ""
-          )}
+      ) : (
+        ""
+      )}
 
       <MessageInput onSubmit={props.onMessageSubmit} />
-          </Container>
     </div>
   );
 }

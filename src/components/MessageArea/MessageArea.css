@@ -1,0 +1,25 @@
+.MessageArea {
+  background-color: #e4dcd4;
+  background-repeat: repeat;
+}
+
+.MessageInput {
+  background-color: #f0f0f0;
+  padding: 15px 5px 0px 5px;
+}
+
+.MessageBox {
+  height: 70vh;
+}
+
+.Message {
+  padding: 10px 10px;
+}
+
+.MessageSent .MessageBody {
+  background-color: #dcf8c6;
+}
+
+.MessageReceived .MessageBody {
+  background-color: white;
+}

@@ -6,6 +6,8 @@ import Button from "react-bootstrap/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
 
+import './NavigationBar.css'
+
 function NavigationBar(props) {
   const fileInput = React.createRef();
 

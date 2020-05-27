@@ -3,15 +3,15 @@ import React from "react";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
-import NavigationBar from "./components/NavigationBar";
-import MessageArea from "./components/MessageArea";
-import Host from "./lib/Host";
-import Guest from "./lib/Guest";
+import NavigationBar from "../NavigationBar/NavigationBar";
+import MessageArea from "../MessageArea/MessageArea";
+import Host from "../../lib/Host";
+import Guest from "../../lib/Guest";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import Container from "react-bootstrap/Container";
-import SystemMessage from "./components/SystemMessage";
+import SystemMessage from "../SystemMessage/SystemMessage";
 
 class App extends React.Component {
   constructor(props) {
@@ -135,25 +135,29 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <NavigationBar onFileSelected={this.onFileSelected} />
-        <Row>
-          <Col md={7}>
-            <div className="SystemMessageArea">
-              {
-                this.state.systemMessages.map(msg => <SystemMessage message={msg.message}/>)
-              }
-            </div>
-          </Col>
+        <Container>
+            <NavigationBar onFileSelected={this.onFileSelected} />
+        </Container>
 
-          <Col md={5}>
-            <MessageArea
-              messages={this.state.messages}
-              fileSendProgress={this.state.fileSendProgress}
-              fileReceiveProgress={this.state.fileReceiveProgress}
-              onMessageSubmit={this.handleMessageSumbit}
-            />
-          </Col>
-        </Row>
+        <Container>
+          <Row>
+            <Col className="SystemMessageColumn" md={7}>
+              <div className="SystemMessageArea">
+                {this.state.systemMessages.map((msg) => (
+                  <SystemMessage message={msg.message} />
+                ))}
+              </div>
+            </Col>
+            <Col className="MessageColumn" md={5}>
+              <MessageArea
+                messages={this.state.messages}
+                fileSendProgress={this.state.fileSendProgress}
+                fileReceiveProgress={this.state.fileReceiveProgress}
+                onMessageSubmit={this.handleMessageSumbit}
+              />
+            </Col>
+          </Row>
+        </Container>
       </div>
     );
   }

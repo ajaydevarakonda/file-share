@@ -1,0 +1,45 @@
+.App {
+  text-align: center;
+  margin-top: 5vh;
+}
+
+.MessageBody {
+  display: inline-block;
+  padding: 7px 9px 9px 9px;
+  font-size: 14.5px;
+  border-radius: 6px;
+  box-shadow: 0px 1px #ccc;
+  margin-bottom: 2px;
+}
+
+.SystemMessageArea {
+  height: 100%;
+  background-color: white;
+  padding-top: 5px;
+}
+
+.SystemMessage {
+  font-size: 1rem;
+  padding: 7px;
+  background-color: #fef3c5;
+  margin: 0px auto 3px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.MessageArea {
+  background-color: #e4dcd4;
+}
+
+.SystemMessageColumn {
+  padding-right: 0px;
+}
+
+.MessageColumn {
+  padding-left: 0px;
+}
+
+.progress {
+  height: 5px;
+  border-radius: 0;
+}
