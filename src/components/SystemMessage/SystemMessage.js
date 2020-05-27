@@ -1,4 +1,5 @@
 import React from "react";
+import "./SystemMessage.css";
 
 /**
  *
@@ -6,11 +7,9 @@ import React from "react";
  * @param {*} props.message any message to write to chatbox.
  */
 function SystemMessage(props) {
-return (
+  return (
     <div className="SystemMessage">
-        <div className="SystemMessageBody">
-            { props.message }
-        </div>
+      <div className="SystemMessageBody">{props.message}</div>
     </div>
   );
 }
