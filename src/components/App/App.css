@@ -3,6 +3,7 @@
   margin-top: 5vh;
 }
 
+/* Belongs to both message and system message. */
 .MessageBody {
   display: inline-block;
   padding: 7px 9px 9px 9px;
@@ -10,11 +11,6 @@
   border-radius: 6px;
   box-shadow: 0px 1px #ccc;
   margin-bottom: 2px;
-}
-
-
-.MessageArea {
-  background-color: #e4dcd4;
 }
 
 .SystemMessageColumn {
@@ -28,4 +24,27 @@
 .progress {
   height: 5px;
   border-radius: 0;
+}
+
+
+/* Scroll bar */
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+  background: #ededed;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

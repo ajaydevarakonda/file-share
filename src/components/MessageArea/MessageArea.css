@@ -1,6 +1,5 @@
 .MessageArea {
   background-color: #e4dcd4;
-  background-repeat: repeat;
 }
 
 .MessageInput {
@@ -10,6 +9,8 @@
 
 .MessageBox {
   height: 70vh;
+  padding: 15px;
+  overflow: auto;
 }
 
 .Message {
