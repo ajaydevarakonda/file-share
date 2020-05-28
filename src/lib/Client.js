@@ -20,34 +20,23 @@ class Client {
     this.filesend_progress_listeners = [];
     this.filereceive_progress_listeners = [];
 
-    // ---- text message ----
     this.onconnected_chat_channel = this.onconnected_chat_channel.bind(this);
-    this.warn_if_chatchannel_not_inited = this.warn_if_chatchannel_not_inited.bind(
-      this
-    );
-    this.on_message = this.on_message.bind(this);
-    this.send_message = this.send_message.bind(this);
-    this.send_system_message = this.send_system_message.bind(this);
-
-    // ---- file ----
     this.onconnected_filesend_channel = this.onconnected_filesend_channel.bind(
       this
     );
-    this.warn_if_filechannel_not_inited = this.warn_if_filechannel_not_inited.bind(
-      this
-    );
-    this.on_file = this.on_file.bind(this);
-    this._on_file = this._on_file.bind(this);
-    this.send_file = this.send_file.bind(this);
-    this.on_filesend_progress = this.on_filesend_progress.bind(this);
-    this.on_filereceive_progress = this.on_filereceive_progress.bind(this);
-    this.request_file_space = this.request_file_space.bind(this);
+
+    this.sendMessage = this.sendMessage.bind(this);
+    this.sendFile = this.sendFile.bind(this);
+    this.addSystemMessageToMyQueue = this.addSystemMessageToMyQueue.bind(this);
   }
 
-  // ---- text message ----
-
   onconnected_chat_channel(event) {
-    this.warn_if_chatchannel_not_inited();
+    if (!this.chat_channel) {
+      console.warn(
+        "Client::onconnected_chat_channel() called without initializing this.chat_channel!"
+      );
+      return;
+    }
 
     this.chat_channel.onmessage = (e) => {
       this.message_listeners.forEach((l) =>
@@ -56,58 +45,50 @@ class Client {
     };
   }
 
-  warn_if_chatchannel_not_inited() {
-    if (!this.chat_channel) {
-      console.warn(
-        "Client::onconnected_chat_channel() called without initializing this.chat_channel!"
-      );
-      return;
-    }
-  }
-
-  /**
-   * Add event listener for text message.
-   *
-   * @param {*} event_listener
-   */
-  on_message(event_listener) {
-    this.message_listeners.push(event_listener);
-  }
-
-  /**
-   * Send message to user on the other end.
-   */
-  send_message(msg) {
-    this.chat_channel.send(msg);
-    this.message_listeners.forEach((l) => l({ type: "sent", message: msg }));
-  }
-
-  /**
-   * Send system message to all event listeners.
-   *
-   * @param {String} message
-   */
-  send_system_message(message) {
-    this.message_listeners.forEach((listener) =>
-      listener({ type: "system", message })
-    );
-  }
-
-  // ---- file ----
-
   onconnected_filesend_channel(event) {
-    this.warn_if_filechannel_not_inited();
-
-    this.filesend_channel.onmessage = this._on_file;
-  }
-
-  warn_if_filechannel_not_inited() {
     if (!this.filesend_channel) {
       console.warn(
         "Client::onconnected_filesend_channel() called without initializing this.filesend_channel!"
       );
       return;
     }
+
+    this.filesend_channel.onmessage = this.onFileSendChannelMessage;
+  }
+
+  set onMessage(event_listener) {
+    this.message_listeners.push(event_listener);
+  }
+
+  set onFile(event_listener) {
+    this.file_listeners.push(event_listener);
+  }
+
+  set onFileSendProgress(event_listener) {
+    this.filesend_progress_listeners.push(event_listener);
+  }
+
+  set onFileReceiveProgress(event_listener) {
+    this.filereceive_progress_listeners.push(event_listener);
+  }
+
+  /**
+   * Send message to user on the other end.
+   */
+  sendMessage(msg) {
+    this.chat_channel.send(msg);
+    this.message_listeners.forEach((l) => l({ type: "sent", message: msg }));
+  }
+
+  /**
+   * Adds system message to this users system message queue.
+   *
+   * @param {String} message
+   */
+  addSystemMessageToMyQueue(message) {
+    this.message_listeners.forEach((listener) =>
+      listener({ type: "system", message })
+    );
   }
 
   /**
@@ -118,7 +99,7 @@ class Client {
    *
    * @param {*} event
    */
-  _on_file(event) {
+  onFileSendChannelMessage(event) {
     // the first part of the message is the filename;;;filesizeInBytes;;;<file>
     if (this.first_filechunk) {
       [this.filename_expected, this.filesize_expected] = event.data.split(
@@ -150,34 +131,7 @@ class Client {
     }
   }
 
-  /**
-   * Add event listener for new file.
-   *
-   * @param {Function} event_listener
-   */
-  on_file(event_listener) {
-    this.file_listeners.push(event_listener);
-  }
-
-  /**
-   * Called when a part of file is sent.
-   *
-   * @param {Function} event_listener
-   */
-  on_filesend_progress(event_listener) {
-    this.filesend_progress_listeners.push(event_listener);
-  }
-
-  /**
-   * Called when a part of file is received.
-   *
-   * @param {Function} event_listener
-   */
-  on_filereceive_progress(event_listener) {
-    this.filereceive_progress_listeners.push(event_listener);
-  }
-
-  send_file(file) {
+  sendFile(file) {
     const { name: filename, size: filesize } = file;
     var file_reader = null;
 
@@ -218,23 +172,6 @@ class Client {
     };
 
     readSlice(0);
-  }
-
-    /**
-   * Filespace to store huge files.
-   */
-  async request_file_space(fileSpaceInMb=1) {
-    return new Promise((resolve, reject) => {
-      window.requestFileSystem =
-        window.requestFileSystem || window.webkitRequestFileSystem;
-
-      window.requestFileSystem(
-        window.TEMPORARY,
-        fileSpaceInMb * 1024 * 1024,
-        resolve,
-        reject
-      );
-    });
   }
 }
 

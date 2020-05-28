@@ -48,7 +48,7 @@ class App extends React.Component {
   initClientListeners() {
     const self = this;
 
-    this.client.on_message((msg) => {
+    this.client.onMessage = (msg) => {
       if (msg.type === "system") {
         return self.setState({
           systemMessages: self.state.systemMessages.concat(msg),
@@ -58,9 +58,9 @@ class App extends React.Component {
       return self.setState({
         messages: self.state.messages.concat(msg),
       });
-    });
+    }
 
-    this.client.on_filesend_progress((progress) => {
+    this.client.onFileSendProgress = (progress) => {
       if (progress === 100) {
         // showing progress bar post 5 seconds is awkward.
         window.setTimeout(() => {
@@ -73,9 +73,9 @@ class App extends React.Component {
       return self.setState({
         fileSendProgress: progress,
       });
-    });
+    }
 
-    this.client.on_file((filename, filesize, fileByteArray) => {
+    this.client.onFile = (filename, filesize, fileByteArray) => {
       const received = new Blob(fileByteArray);
 
       const href = URL.createObjectURL(received);
@@ -88,20 +88,24 @@ class App extends React.Component {
             {filename}({filesizeMB} MB)
           </a>
         ),
-      };
+        };
 
       return this.setState({
         systemMessages: this.state.systemMessages.concat(msg),
       });
-    });
+    }
   }
 
   handleMessageSumbit(msg) {
+    console.log("submitted")
+    console.log(this.clientType)
+    console.log(this.isDescriptionSet)
+
     if (this.clientType === "Host" && !this.isDescriptionSet) {
       this.client.set_description(msg);
       this.isDescriptionSet = true;
     } else {
-      this.client.send_message(msg);
+      this.client.sendMessage(msg);
     }
   }
 
@@ -112,7 +116,7 @@ class App extends React.Component {
       throw new Error("Emtpy file!");
     }
 
-    this.client.send_file(e.target.files[0]);
+    this.client.sendFile(e.target.files[0]);
   }
 
   render() {

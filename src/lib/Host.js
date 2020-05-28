@@ -1,4 +1,3 @@
-import { print } from "./utils";
 import Client from "./Client";
 import React from "react";
 
@@ -8,7 +7,7 @@ class Host extends Client {
   constructor() {
     super();
 
-    print("Initializing...");
+    console.log("Initializing...");
 
     this.init_channels();
     this.add_connection_eventhandlers();
@@ -38,7 +37,7 @@ class Host extends Client {
   async add_connection_eventhandlers() {
     this.connection.setLocalDescription(await this.connection.createOffer());
     this.connection.oniceconnectionstatechange = () =>
-      this.send_system_message(
+      this.addSystemMessageToMyQueue(
         "Connection status: " + this.connection.iceConnectionState
       );
     this.connection.onicegatheringstatechange = () => {
@@ -64,7 +63,7 @@ class Host extends Client {
         </div>
       );
 
-      this.send_system_message(systemMessage);
+      this.addSystemMessageToMyQueue(systemMessage);
     };
   }
 

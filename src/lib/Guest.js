@@ -27,7 +27,7 @@ class Guest extends Client {
 
   async add_connection_eventhandlers() {
     this.connection.oniceconnectionstatechange = () =>
-      this.send_system_message(
+      this.addSystemMessageToMyQueue(
         "Connection status: " + this.connection.iceConnectionState
       );
     this.connection.onicegatheringstatechange = () => {
@@ -36,7 +36,7 @@ class Guest extends Client {
       }
 
       const desc = JSON.stringify(this.connection.localDescription);
-      this.send_system_message(
+      this.addSystemMessageToMyQueue(
         <div>
           To make a connection, send the following string to the other person.
           <br />
