@@ -75,24 +75,27 @@ class App extends React.Component {
       });
     }
 
-    this.client.onFile = (filename, filesize, fileByteArray) => {
-      const received = new Blob(fileByteArray);
+    this.client.onFile = (filename, filesize, persistentFile) => {
+      // get the link of the persistentFile for download.
+      console.log(persistentFile);
+      
+      // const received = new Blob(fileByteArray);
+      // const href = URL.createObjectURL(received);
 
-      const href = URL.createObjectURL(received);
-      const filesizeMB = filesize / 1000;
+      // const filesizeMB = filesize / 1000;
 
-      const msg = {
-        type: "system",
-        message: (
-          <a href={href} download={filename}>
-            {filename}({filesizeMB} MB)
-          </a>
-        ),
-        };
+      // const msg = {
+      //   type: "system",
+      //   message: (
+      //     <a href={href} download={filename}>
+      //       {filename}({filesizeMB} MB)
+      //     </a>
+      //   ),
+      // };
 
-      return this.setState({
-        systemMessages: this.state.systemMessages.concat(msg),
-      });
+      // return this.setState({
+      //   systemMessages: this.state.systemMessages.concat(msg),
+      // });
     }
   }
 

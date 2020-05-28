@@ -1,3 +1,6 @@
+import PersistentFile from "../lib/PersistentFile";
+
+
 class Client {
   constructor() {
     this.connection = new RTCPeerConnection({
@@ -9,10 +12,10 @@ class Client {
 
     // ---- file send / received ----
     this.first_filechunk = true;
-    this.receivebuffer = [];
     this.receivedsize = 0;
     this.filename_expected = "";
     this.filesize_expected = 0;
+    this.currentFile = null;    
 
     // ---- external event listeners ----
     this.message_listeners = [];
@@ -28,6 +31,7 @@ class Client {
     this.sendMessage = this.sendMessage.bind(this);
     this.sendFile = this.sendFile.bind(this);
     this.addSystemMessageToMyQueue = this.addSystemMessageToMyQueue.bind(this);
+    this.onFileSendChannelMessage = this.onFileSendChannelMessage.bind(this);
   }
 
   onconnected_chat_channel(event) {
@@ -99,7 +103,7 @@ class Client {
    *
    * @param {*} event
    */
-  onFileSendChannelMessage(event) {
+  async onFileSendChannelMessage(event) {
     // the first part of the message is the filename;;;filesizeInBytes;;;<file>
     if (this.first_filechunk) {
       [this.filename_expected, this.filesize_expected] = event.data.split(
@@ -107,11 +111,19 @@ class Client {
       );
       this.filesize_expected = parseInt(this.filesize_expected);
 
-      this.first_filechunk = false;
+      // don't do this post await.
+      this.first_filechunk = false;      
+
+      this.currentFile = new PersistentFile(this.filename_expected, this.filesize_expected);
+      await this.currentFile.init();      
+
       return;
     }
 
-    this.receivebuffer.push(event.data);
+    console.log("this", this)
+    console.log("this.currentFile", this.currentFile)
+
+    await this.currentFile.append(event.data);
     this.receivedsize += event.data.byteLength;
 
     this.filereceive_progress_listeners.forEach((l) =>
@@ -119,9 +131,10 @@ class Client {
     );
 
     if (this.receivedsize === this.filesize_expected) {
-      this.file_listeners.forEach(l => l(this.filename_expected, this.filesize_expected, this.receivebuffer));
+      this.file_listeners.forEach(l => l(this.filename_expected, this.filesize_expected, this.currentFile));
 
-      this.receivebuffer = [];
+      this.currentFile.flush()
+      this.currentFile = null;
 
       // for future files
       this.first_filechunk = true;
