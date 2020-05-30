@@ -120,9 +120,6 @@ class Client {
       return;
     }
 
-    console.log("this", this)
-    console.log("this.currentFile", this.currentFile)
-
     await this.currentFile.append(event.data);
     this.receivedsize += event.data.byteLength;
 
@@ -133,7 +130,9 @@ class Client {
     if (this.receivedsize === this.filesize_expected) {
       this.file_listeners.forEach(l => l(this.filename_expected, this.filesize_expected, this.currentFile));
 
-      this.currentFile.flush()
+      await this.currentFile.flush()
+      this.currentFile.close();
+
       this.currentFile = null;
 
       // for future files
@@ -160,7 +159,7 @@ class Client {
     );
 
     file_reader.addEventListener("abort", (event) =>
-      console.log("File reading aborted:", event)
+      console.warn("File reading aborted:", event)
     );
 
     file_reader.addEventListener("load", (e) => {

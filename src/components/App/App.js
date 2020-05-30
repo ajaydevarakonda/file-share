@@ -100,10 +100,6 @@ class App extends React.Component {
   }
 
   handleMessageSumbit(msg) {
-    console.log("submitted")
-    console.log(this.clientType)
-    console.log(this.isDescriptionSet)
-
     if (this.clientType === "Host" && !this.isDescriptionSet) {
       this.client.set_description(msg);
       this.isDescriptionSet = true;
