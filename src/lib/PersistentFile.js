@@ -29,7 +29,7 @@ export default class PersistentFile {
   get receivedStreamReader() {
     const blob = new Blob(this.receivedData)
     const readableStream = blob.stream();
-    return readableStream.getReader()
+    return readableStream.getReader();
   }
 
   async init() {
@@ -67,7 +67,7 @@ export default class PersistentFile {
       // if initialized, append.
       // we cannot use received data as is.
       const receivedData = await this.receivedStreamReader.read();
-      await this.fileStreamWriter.write(receivedData);
+      await this.fileStreamWriter.write(receivedData.value);
       console.log("Wrote received")
       this.receivedData = [];
 
