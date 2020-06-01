@@ -75,27 +75,28 @@ class App extends React.Component {
       });
     }
 
+    this.client.onFileReceiveProgress = (progress) => {
+      if (progress === 100) {
+        // showing progress bar post 5 seconds is awkward.
+        window.setTimeout(() => {
+          return this.setState({
+            fileReceiveProgress: 0,
+          });
+        }, 5000);
+      }
+
+      return self.setState({
+        fileReceiveProgress: progress,
+      });
+    }
+
     this.client.onFile = (filename, filesize, persistentFile) => {
-      // get the link of the persistentFile for download.
-      console.log(persistentFile);
-      
-      // const received = new Blob(fileByteArray);
-      // const href = URL.createObjectURL(received);
+      const fileSizeInMb = (filesize / (1024 * 1024)).toFixed(2);
+      const msg = { type: "system", message: `Received ${filename}(${fileSizeInMb} MB)` };
 
-      // const filesizeMB = filesize / 1000;
-
-      // const msg = {
-      //   type: "system",
-      //   message: (
-      //     <a href={href} download={filename}>
-      //       {filename}({filesizeMB} MB)
-      //     </a>
-      //   ),
-      // };
-
-      // return this.setState({
-      //   systemMessages: this.state.systemMessages.concat(msg),
-      // });
+      return this.setState({
+        systemMessages: this.state.systemMessages.concat(msg),
+      });
     }
   }
 
